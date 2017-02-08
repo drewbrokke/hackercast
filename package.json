@@ -1,0 +1,17 @@
+{
+  "name": "wecast",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Drew Brokke",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "nedb": "^1.8.0",
+    "socket.io": "^1.7.2",
+    "userhome": "^1.0.0"
+  }
+}

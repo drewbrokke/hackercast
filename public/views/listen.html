@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<link rel="stylesheet" href="/vendor/vue-material.css">
+	<link rel="stylesheet" href="/styles/listen.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.min.js"></script>
+	<script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+	<script src="/vendor/vue-material.js"></script>
+</head>
+<body>
+	<div id="podcast" v-md-theme="'default'">
+		<div v-if="audio">
+			<div class="md-display-2" id="description" v-if="podcast">{{ podcast.description }}</div>
+			<div>
+				<md-button class="md-raised" v-on:click="toggle">{{ paused ? 'Play' : 'Pause' }}</md-button>
+				<span class="md-display-1">{{ Math.floor(currentTime) }} / {{ Math.floor(duration) }}</span>
+			</div>
+		</div>
+		<div v-else>
+			<span>Waiting for podcast audio...</span>
+		</div>
+	</div>
+	<div id="chat">
+		<div id='messages'>
+			<p v-for="message in messages">
+				<strong>{{ message.author }}: </strong>
+				<span>{{ message.content }}</span>
+				<span> ({{message.date.getHours()}}:{{message.date.getMinutes()}})</span>
+			</p>
+			<p>{{ currentMessage ? currentMessage : 'Message goes here...' }}</p>
+		</div>
+
+		<form v-on:submit.prevent>
+			<label for="message">Chat: </label>
+			<input name="message" type="text"
+				v-model.trim="currentMessage"
+				v-on:keyup.enter="handleInputKeyup">
+		</form>
+	</div>
+
+	<script>
+		Vue.use(VueMaterial);
+
+		Vue.material.theme.register('default', {
+			primary: 'cyan',
+			accent: 'pink'
+		});
+	</script>
+	<script src="/scripts/listen.js"></script>
+	<script>
+		// const me = prompt('Please enter name');
+		const me = 'Me';
+		const them = 'Them';
+
+		function Message(author, content, date) {
+			this.author = author;
+			this.content = content;
+			this.date = date;
+		}
+
+		const chat = new Vue({
+			el: '#chat',
+			data: {
+				currentMessage: '',
+				user: me,
+				messages: []
+			},
+			mounted: function() {
+				this.messages = [
+					this.createMessage(me, 'Hello there.'),
+					this.createMessage(me, 'This is definitely not a real chat yet.')
+				];
+			},
+			methods: {
+				createMessage: function(author, content) {
+					return new Message(author, content, new Date());
+				},
+				handleInputKeyup: function() {
+					if (this.currentMessage !== '') {
+						this.submitMessage();
+					}
+				},
+				submitMessage: function(text) {
+					const messageObject = this.createMessage(this.user, this.currentMessage);
+
+					this.messages = this.messages.concat(messageObject);
+
+					this.currentMessage = '';
+				}
+			}
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<link rel="stylesheet" href="/styles/index.css" />
+	<script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+<body>
+	<form action="/podcast/new" v-on:submit.prevent="submit" id="form" method="post">
+		<div>
+			<label for="name">Url to audio file</label>
+			<input v-model="currentUrl" name="url" type="text">
+		</div>
+		<span v-text="currentUrl"></span>
+		<span v-text="urlStatusMessage"></span>
+		<div>
+			<label for="description">Name or description</label>
+			<input v-model="description" name="description" type="text">
+		</div>
+
+		<button>Submit</button>
+	</form>
+
+	<div id="podcasts">
+		<div class="podcast-link" v-for="podcast in podcasts">
+			<a :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }} ({{podcast.src}})</a>
+		</div>
+	</div>
+
+	<script>
+		(() => {
+			new Vue({
+				el: '#form',
+				data: {
+					currentUrl: null,
+					description: null,
+					isValidUrl: false
+				},
+				computed: {
+					urlStatusMessage: function() {
+						return this.isValidUrl ? 'URL is valid!' : 'Please enter a valid URL.'
+					}
+				},
+				methods: {
+					submit: function(event) {
+						fetch(this.currentUrl, {mode: 'cors'})
+							.then(res => {
+								this.isValidUrl = (res.status == 200);
+
+								if (this.isValidUrl && this.description) {
+									event.target.submit();
+								}
+							})
+							.catch(err => {
+								this.isValidUrl = (err.toString() === 'TypeError: Failed to fetch');
+
+								if (this.isValidUrl && this.description) {
+									event.target.submit();
+								}
+							});
+					}
+				}
+			});
+
+			fetch('/podcasts')
+				.then(response => response.json())
+				.then(podcasts => {
+					new Vue({
+						el: '#podcasts',
+						data: {
+							podcasts: podcasts
+						}
+					});
+				});
+
+		})();
+	</script>
+</body>
+
+</html>
