@@ -37,12 +37,16 @@ const app = new Vue({
 		_bindAudioEvents: function() {
 			this.audio = new Audio(`${this.podcast.src}`);
 
+			let syncViewToAudio = (property) => this[property] = this.audio[property];
+
 			this.audio.oncanplaythrough = () => this.paused ? "" : this.audio.play();
-			this.audio.ondurationchange = () => this.duration = this.audio.duration;
 			this.audio.onloadeddata = () => this.audio.currentTime = this.currentTime;
-			this.audio.onpause = () => this.paused = true;
-			this.audio.onplay = () => this.paused = false;
-			this.audio.ontimeupdate = () => this.currentTime = this.audio.currentTime;
+
+			this.audio.ondurationchange = () => syncViewToAudio('duration');
+			this.audio.ontimeupdate = () => syncViewToAudio('currentTime');
+
+			this.audio.onpause = () => syncViewToAudio('paused');
+			this.audio.onplay = () => syncViewToAudio('paused');
 		},
 		_bindSocketEvents: function() {
 			this.socket.on('play', () => this.audio.play());
