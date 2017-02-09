@@ -4,6 +4,7 @@
 
 <head>
 	<link rel="stylesheet" href="/styles/index.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.min.js"></script>
 	<script src="https://unpkg.com/vue/dist/vue.js"></script>
 </head>
 <body>
@@ -24,7 +25,7 @@
 
 	<div id="podcasts">
 		<div class="podcast-link" v-for="podcast in podcasts">
-			<a :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }} ({{podcast.src}})</a>
+			<a :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }} ({{podcast.src}})</a> <button :data-podcast-id="podcast._id" v-on:click="deletePodcast">Remove</button>
 		</div>
 	</div>
 
@@ -66,10 +67,23 @@
 			fetch('/podcasts')
 				.then(response => response.json())
 				.then(podcasts => {
+					const socketAddr = `${window.location.protocol}//${window.location.hostname}:3001`;
+
 					new Vue({
 						el: '#podcasts',
 						data: {
-							podcasts: podcasts
+							podcasts: podcasts,
+							socket: io.connect(socketAddr)
+						},
+						created: function() {
+							this.socket.on('podcasts', (podcasts) => this.podcasts = podcasts);
+						},
+						methods: {
+							deletePodcast: function(event) {
+								let podcastId = event.target.dataset.podcastId;
+
+								this.socket.emit('removePodcast', podcastId);
+							}
 						}
 					});
 				});

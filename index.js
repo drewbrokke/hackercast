@@ -63,13 +63,29 @@ server.listen(3001);
 
 io.on('connection', socket => {
 	socket.on('play', podcast => {
+		console.log('');
+		console.log(`Playing podcast ${podcast._id}:`);
+		console.log(podcast);
 		podcastDB.update({ _id: podcast._id }, podcast);
 		io.emit('play');
 	});
 
 	socket.on('pause', podcast => {
+		console.log('');
+		console.log(`Pausing podcast ${podcast._id}:`);
+		console.log(podcast);
 		podcastDB.update({ _id: podcast._id }, podcast);
 		io.emit('pause');
+	});
+
+	socket.on('removePodcast', podcastId => {
+		console.log('');
+		console.log(`Removing podcast with ID: ${podcastId}:`);
+		podcastDB.remove({ _id: podcastId }, (err, numRemoved) => {
+			podcastDB.find({}, (err, docs) => {
+				io.emit('podcasts', docs);
+			});
+		});
 	});
 
 	socket.on('disconnect', () => {
