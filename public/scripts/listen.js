@@ -35,8 +35,11 @@ const app = new Vue({
 			this.paused ? this.emitPlay() : this.emitPause();
 		},
 		_bindAudioEvents: function() {
-			this.audio.oncanplay = () => this.paused ? "" : this.audio.play();
+			this.audio = new Audio(`${this.podcast.src}`);
+
+			this.audio.oncanplaythrough = () => this.paused ? "" : this.audio.play();
 			this.audio.ondurationchange = () => this.duration = this.audio.duration;
+			this.audio.onloadeddata = () => this.audio.currentTime = this.currentTime;
 			this.audio.onpause = () => this.paused = true;
 			this.audio.onplay = () => this.paused = false;
 			this.audio.ontimeupdate = () => this.currentTime = this.audio.currentTime;
@@ -57,15 +60,11 @@ const app = new Vue({
 				});
 		},
 		_initData: function() {
-			this.audio = new Audio(`${this.podcast.src}`);
-
 			this.currentTime = this.podcast.paused
 				? this.podcast.currentTime
 				: ((new Date).getTime() - this.podcast.startTime) / 1000;
 
 			this.paused = this.podcast.paused;
-
-			this.audio.currentTime = this.currentTime;
 		}
 	}
 });
