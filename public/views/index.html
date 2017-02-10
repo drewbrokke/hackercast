@@ -73,10 +73,7 @@
 				created: function() {
 					this.socket.emit('podcast-request-all');
 
-					this.socket.on('podcasts-found', (podcasts) => {
-						console.log('podcasts')
-						this.podcasts = podcasts
-					});
+					this.socket.on('podcasts-found', podcasts => this.podcasts = podcasts);
 				},
 				methods: {
 					deletePodcast: function(event) {

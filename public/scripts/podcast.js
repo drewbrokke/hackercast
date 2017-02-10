@@ -4,11 +4,11 @@ const app = new Vue({
 		currentTime: null,
 		duration: null,
 		listeners: null,
-		nickname: nickname,
+		nickname,
 		paused: null,
 		podcast: null,
 		progress: 0,
-		socket: socket,
+		socket,
 		volume: 1
 	},
 

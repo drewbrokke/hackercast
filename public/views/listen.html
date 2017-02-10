@@ -31,7 +31,7 @@
 
 	<div id="chat">
 		<div id="messages">
-			<div class="message" v-bind:class="{ mine: (message.author === user) }" v-for="message in messages">
+			<div class="message" v-bind:class="{ mine: (message.author === nickname) }" v-for="message in messages">
 				<div class="message-data">
 					<span class="md-body-1">{{ message.author }} </span>
 					<span class="md-body-1">{{ message.date.getHours() }}:{{ message.date.getMinutes() }}</span>

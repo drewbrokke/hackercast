@@ -8,9 +8,9 @@ const chat = new Vue({
 	el: '#chat',
 	data: {
 		currentMessage: '',
-		podcastId: podcastId,
-		socket: socket,
-		user: nickname,
+		podcastId,
+		socket,
+		nickname,
 		messages: []
 	},
 	created: function() {
@@ -34,7 +34,7 @@ const chat = new Vue({
 		},
 		submitMessage: function(text) {
 			const message = {
-				author: this.user,
+				author: this.nickname,
 				content: this.currentMessage,
 				date: new Date(),
 				podcastId: this.podcastId
