@@ -1,10 +1,10 @@
-const socketAddr = `${window.location.protocol}//${window.location.hostname}:3001`;
-
 const app = new Vue({
 	data: {
 		audio: null,
 		currentTime: null,
 		duration: null,
+		listeners: null,
+		nickname: nickname,
 		paused: null,
 		podcast: null,
 		socket: io.connect(socketAddr),
@@ -13,9 +13,11 @@ const app = new Vue({
 
 	el: '#podcast',
 
-	created: function() {
-		const podcastId = window.location.pathname.substr(8);
+	beforeDestroy: function() {
+		alert('Destroy!');
+	},
 
+	created: function() {
 		this._fetchPodcast(podcastId);
 	},
 
@@ -30,13 +32,13 @@ const app = new Vue({
 			this.podcast.currentTime = this.audio.currentTime;
 			this.podcast.paused = true;
 
-			this.socket.emit('pause', this.podcast);
+			this.socket.emit('podcast-pause', this.podcast);
 		},
 		emitPlay: function() {
 			this.podcast.startTime = Math.floor((new Date).getTime() - (this.currentTime * 1000));
 			this.podcast.paused = false;
 
-			this.socket.emit('play', this.podcast);
+			this.socket.emit('podcast-play', this.podcast);
 		},
 		toggle: function() {
 			this.paused ? this.emitPlay() : this.emitPause();
@@ -56,8 +58,8 @@ const app = new Vue({
 			this.audio.onplay = () => syncViewToAudio('paused');
 		},
 		_bindSocketEvents: function() {
-			this.socket.on('play', () => this.audio.play());
-			this.socket.on('pause', () => this.audio.pause());
+			this.socket.on('podcast-play', () => this.audio.play());
+			this.socket.on('podcast-pause', () => this.audio.pause());
 		},
 		_fetchPodcast: function(podcastId) {
 			fetch(`/podcast/find/${podcastId}`)

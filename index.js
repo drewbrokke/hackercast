@@ -15,11 +15,10 @@ app.use(express.static('public'));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'views', 'index.html')));
 app.get('/listen/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'views', 'listen.html')));
 
-// Podcast API
-
 const Datastore = require('nedb');
+
+// Podcast API
 const podcastDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'podcasts')});
-const chatMessages = new Datastore({filename: userhome('.hackercast', 'persistence', 'messages')});
 
 podcastDB.loadDatabase();
 
@@ -56,31 +55,54 @@ app.post('/podcast/new', (req, res) => {
 
 // Socket Interaction
 
+const messagesDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'messages')});
+
+messagesDB.loadDatabase();
+
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
 server.listen(3001);
 
 io.on('connection', socket => {
-	socket.on('play', podcast => {
+	socket.on('join', ({nickname, podcastId}) => {
+		socket.join(podcastId);
+	});
+
+	socket.on('chat-connect', () => {
+		messagesDB.find({}, (err, docs) => {
+			io.to(socket.id).emit('messages', docs);
+		});
+	})
+
+	socket.on('message', (message) => {
+		messagesDB.insert(message, (err, newMessage) => {
+			io.to(message.podcastId).emit('message', newMessage);
+		});
+	});
+
+	socket.on('podcast-play', podcast => {
 		console.log('');
 		console.log(`Playing podcast ${podcast._id}:`);
 		console.log(podcast);
+
 		podcastDB.update({ _id: podcast._id }, podcast);
-		io.emit('play');
+		io.to(podcast._id).emit('podcast-play');
 	});
 
-	socket.on('pause', podcast => {
+	socket.on('podcast-pause', podcast => {
 		console.log('');
 		console.log(`Pausing podcast ${podcast._id}:`);
 		console.log(podcast);
+
 		podcastDB.update({ _id: podcast._id }, podcast);
-		io.emit('pause');
+		io.to(podcast._id).emit('podcast-pause');
 	});
 
-	socket.on('removePodcast', podcastId => {
+	socket.on('podcast-remove', podcastId => {
 		console.log('');
 		console.log(`Removing podcast with ID: ${podcastId}:`);
+
 		podcastDB.remove({ _id: podcastId }, (err, numRemoved) => {
 			podcastDB.find({}, (err, docs) => {
 				io.emit('podcasts', docs);
@@ -88,9 +110,10 @@ io.on('connection', socket => {
 		});
 	});
 
-	socket.on('disconnect', () => {
+	socket.on('disconnect', (data) => {
+		console.log('data: ', data);
 		// a user has left our page - remove them from the visitorsData object
 	});
 });
 
-app.listen(3000, () => console.log('Example app listening on port 3000!'));
+app.listen(3000, () => console.log('Hackercast listening on port 3000!'));

@@ -27,6 +27,7 @@
 			<span>Waiting for podcast audio...</span>
 		</div>
 	</div>
+
 	<div id="chat">
 		<div id='messages'>
 			<p v-for="message in messages">
@@ -34,7 +35,6 @@
 				<span>{{ message.content }}</span>
 				<span> ({{message.date.getHours()}}:{{message.date.getMinutes()}})</span>
 			</p>
-			<p>{{ currentMessage ? currentMessage : 'Message goes here...' }}</p>
 		</div>
 
 		<form v-on:submit.prevent>
@@ -52,45 +52,67 @@
 			primary: 'cyan',
 			accent: 'pink'
 		});
+
+		let nickname = localStorage.getItem('nickname');
+
+		if (!nickname) {
+			nickname = prompt('Please enter a nickname');
+
+			localStorage.setItem('nickname', nickname);
+		}
+
+		const podcastId = window.location.pathname.substr(8);
+
+		const socketAddr = `${window.location.protocol}//${window.location.hostname}:3001`;
+		const socket = io.connect(socketAddr);
+
+		socket.emit('join', {nickname, podcastId});
 	</script>
 	<script src="/scripts/listen.js"></script>
 	<script>
-		// const me = prompt('Please enter name');
-		const me = 'Me';
-		const them = 'Them';
-
-		function Message(author, content, date) {
+		function Message(author, content, date, podcastId) {
 			this.author = author;
 			this.content = content;
-			this.date = date;
+			this.date = new Date(date);
 		}
 
 		const chat = new Vue({
 			el: '#chat',
 			data: {
 				currentMessage: '',
-				user: me,
+				podcastId: podcastId,
+				socket: socket,
+				user: nickname,
 				messages: []
 			},
-			mounted: function() {
-				this.messages = [
-					this.createMessage(me, 'Hello there.'),
-					this.createMessage(me, 'This is definitely not a real chat yet.')
-				];
+			created: function() {
+				this.socket.on('message', ({author, content, date}) => {
+					this.messages.push(new Message(author, content, date));
+				})
+
+				this.socket.on('messages', messages => {
+					this.messages = messages
+						.map(({author, content, date}) => new Message(author, content, date))
+						.sort((m1, m2) => m1.date > m2.date);
+				})
+
+				this.socket.emit('chat-connect');
 			},
 			methods: {
-				createMessage: function(author, content) {
-					return new Message(author, content, new Date());
-				},
 				handleInputKeyup: function() {
 					if (this.currentMessage !== '') {
 						this.submitMessage();
 					}
 				},
 				submitMessage: function(text) {
-					const messageObject = this.createMessage(this.user, this.currentMessage);
+					const message = {
+						author: this.user,
+						content: this.currentMessage,
+						date: new Date(),
+						podcastId: this.podcastId
+					}
 
-					this.messages = this.messages.concat(messageObject);
+					this.socket.emit('message', message);
 
 					this.currentMessage = '';
 				}
