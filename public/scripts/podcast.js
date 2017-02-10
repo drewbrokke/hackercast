@@ -47,13 +47,13 @@ const app = new Vue({
 			this.podcast.currentTime = this.audio.currentTime;
 			this.podcast.paused = true;
 
-			this.socket.emit('podcast-pause', this.podcast);
+			this.socket.emit('podcast-pause', {podcast: this.podcast, nickname});
 		},
 		emitPlay: function() {
 			this.podcast.startTime = Math.floor((new Date).getTime() - (this.currentTime * 1000));
 			this.podcast.paused = false;
 
-			this.socket.emit('podcast-play', this.podcast);
+			this.socket.emit('podcast-play', {podcast: this.podcast, nickname});
 		},
 		toggle: function() {
 			this.paused ? this.emitPlay() : this.emitPause();
