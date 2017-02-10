@@ -31,10 +31,10 @@
 
 	<div id="chat">
 		<div id="messages">
-			<div class="message" v-bind:class="{ mine: (message.author === nickname) }" v-for="message in messages">
+			<div class="message" v-bind:data-message-id="message._id" v-bind:class="{ mine: (message.author === nickname) }" v-for="message in messages">
 				<div class="message-data">
 					<span class="md-body-1">{{ message.author }} </span>
-					<span class="md-body-1">{{ message.date.getHours() }}:{{ message.date.getMinutes() }}</span>
+					<span class="md-body-1">{{ new Date(message.date).getHours() }}:{{ new Date(message.date).getMinutes() }}</span>
 				</div>
 				<div class="message">
 					<span class="md-caption">{{ message.content }}</span>
@@ -42,12 +42,14 @@
 			</div class="chat-message">
 		</div>
 
-		<form v-on:submit.prevent>
-			<label for="message">Chat: </label>
-			<input name="message" type="text"
-				v-model.trim="currentMessage"
-				v-on:keyup.enter="handleInputKeyup">
-		</form>
+		<div id="chatInput">
+			<form v-on:submit.prevent>
+				<label for="message">Chat: </label>
+				<input class="chat-input-field" name="message" type="text"
+					v-model.trim="currentMessage"
+					v-on:keyup.enter="handleInputKeyup">
+			</form>
+		</div>
 	</div>
 
 	<script>

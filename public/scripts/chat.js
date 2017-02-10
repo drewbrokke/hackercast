@@ -1,9 +1,3 @@
-function Message(author, content, date, podcastId) {
-	this.author = author;
-	this.content = content;
-	this.date = new Date(date);
-}
-
 const chat = new Vue({
 	el: '#chat',
 	data: {
@@ -14,18 +8,21 @@ const chat = new Vue({
 		messages: []
 	},
 	created: function() {
-		this.socket.on('message', ({author, content, date}) => {
-			this.messages.push(new Message(author, content, date));
+		this.socket.on('message', message => {
+			this.messages = this.messages.concat([message]);
 		})
 
 		this.socket.on('messages', messages => {
-			this.messages = messages
-				.map(({author, content, date}) => new Message(author, content, date))
-				.sort((m1, m2) => m1.date > m2.date);
+			this.messages = messages.sort((m1, m2) => new Date(m1.date).getTime() > new Date(m2.date).getTime());
 		})
 
 		this.socket.emit('chat-connect', this.podcastId);
 	},
+
+	updated: function() {
+		this.focusLastMessage();
+	},
+
 	methods: {
 		handleInputKeyup: function() {
 			if (this.currentMessage !== '') {
@@ -43,6 +40,17 @@ const chat = new Vue({
 			this.socket.emit('message', message);
 
 			this.currentMessage = '';
+		},
+
+		focusLastMessage: function() {
+			const messageElements = document.querySelectorAll('.message');
+
+			const lastElement = messageElements[messageElements.length - 1];
+
+			if (lastElement) {
+				lastElement.scrollIntoView();
+			}
+
 		}
 	}
 });

@@ -1,12 +1,16 @@
 #chat {
-	border: 1px solid darkslategray;
-	bottom: 10px;
-	max-height: 1000px;
+	bottom: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 400px;
+	height: 95%;
+}
+
+#messages {
+	height: 95%;
 	overflow-y: scroll;
 	padding: 5px;
-	position: absolute;
-	right: 20px;
-	width: 350px;
 }
 
 #chat .message {
@@ -19,4 +23,14 @@
 
 #chat .message-data {
 	color: gray;
+}
+
+#chatInput {
+	border-top: 1px solid gray;
+	padding: 5px;
+}
+
+#chatInput .chat-input-field {
+	height: 20px;
+	width: 70%;
 }
