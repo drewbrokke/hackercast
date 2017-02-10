@@ -1,10 +1,18 @@
 #chat {
+	border: 1px solid darkslategray;
+	bottom: 10px;
+	max-height: 1000px;
+	overflow-y: scroll;
 	padding: 5px;
 	position: absolute;
 	right: 20px;
-	border: 1px solid darkslategray;
-	max-height: 1000px;
-	overflow-y: scroll;
-	bottom: 10px;
 	width: 350px;
+}
+
+#chat .message {
+	margin-bottom: 10px;
+}
+
+#chat .message.mine {
+	text-align: right;
 }

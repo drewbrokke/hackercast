@@ -65,9 +65,7 @@ const io = require('socket.io')(server);
 server.listen(3001);
 
 io.on('connection', socket => {
-	socket.on('join', ({nickname, podcastId}) => {
-		socket.join(podcastId);
-	});
+	socket.on('join', podcastId => socket.join(podcastId));
 
 	socket.on('chat-connect', () => {
 		messagesDB.find({}, (err, docs) => {
@@ -110,10 +108,7 @@ io.on('connection', socket => {
 		});
 	});
 
-	socket.on('disconnect', (data) => {
-		console.log('data: ', data);
-		// a user has left our page - remove them from the visitorsData object
-	});
+	socket.on('disconnect', data => console.log(data));
 });
 
 app.listen(3000, () => console.log('Hackercast listening on port 3000!'));

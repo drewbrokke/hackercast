@@ -7,8 +7,15 @@ const app = new Vue({
 		nickname: nickname,
 		paused: null,
 		podcast: null,
-		socket: io.connect(socketAddr),
+		progress: 0,
+		socket: socket,
 		volume: 1
+	},
+
+	computed: {
+		progress: function() {
+			return Math.floor((this.currentTime / this.duration) * 100);
+		}
 	},
 
 	el: '#podcast',
