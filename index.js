@@ -15,96 +15,129 @@ app.use(express.static('public'));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'views', 'index.html')));
 app.get('/listen/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'views', 'listen.html')));
 
+// Set up PERSISTENCE
 const Datastore = require('nedb');
 
-// Podcast API
 const podcastDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'podcasts')});
-
-podcastDB.loadDatabase();
-
-app.get('/podcasts', (req, res) => {
-	podcastDB.find({}, (err, docs) => {
-		res.setHeader('Content-Type', 'application/json');
-		res.json(docs);
-	});
-});
-
-app.get('/podcast/find/:id', (req, res) => {
-	podcastDB.findOne({ _id: req.params.id }, (err, doc) => {
-		res.setHeader('Content-Type', 'application/json');
-		res.json(doc);
-	});
-});
-
-app.post('/podcast/new', (req, res) => {
-	const description = req.body.description;
-	const url = req.body.url;
-
-	const podcast = {
-		currentTime: 0,
-		description: description,
-		paused: false,
-		src: url,
-		startTime: (new Date).getTime()
-	};
-
-	podcastDB.insert(podcast, (err, newPodcast) => {
-		res.redirect(`/listen/${newPodcast._id}`);
-	});
-});
-
-// Socket Interaction
-
 const messagesDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'messages')});
 
+podcastDB.loadDatabase();
 messagesDB.loadDatabase();
+
+// Set up SOCKET server
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
 server.listen(3001);
 
+// Socket Interaction
+
 io.on('connection', socket => {
 	socket.on('join', podcastId => socket.join(podcastId));
 
-	socket.on('chat-connect', () => {
-		messagesDB.find({}, (err, docs) => {
+	/*
+
+	PODCASTS
+
+	{
+		currentTime: Number
+		description: String
+		paused: Boolean
+		src: String
+		startTime: Number
+	}
+
+	MESSAGES
+
+	{
+		author: String
+		content: String
+		date: Date
+		podcastId: String
+	}
+
+	*/
+
+	// DB: Find all messages with podcastId
+	// Socket: Send messages to single client
+	socket.on('chat-connect', podcastId => {
+		messagesDB.find({ podcastId }, (err, docs) => {
 			io.to(socket.id).emit('messages', docs);
 		});
 	})
 
+	// DB: Create new message
+	// Socket: Send new message to all in room
 	socket.on('message', (message) => {
 		messagesDB.insert(message, (err, newMessage) => {
 			io.to(message.podcastId).emit('message', newMessage);
 		});
 	});
 
+	// DB: Update podcast as playing
+	// Socket: Send play event to all in room
 	socket.on('podcast-play', podcast => {
 		console.log('');
 		console.log(`Playing podcast ${podcast._id}:`);
 		console.log(podcast);
 
 		podcastDB.update({ _id: podcast._id }, podcast);
+
 		io.to(podcast._id).emit('podcast-play');
 	});
 
+	// DB: Update podcast as paused
+	// Socket: Send pause event to all in room
 	socket.on('podcast-pause', podcast => {
 		console.log('');
 		console.log(`Pausing podcast ${podcast._id}:`);
 		console.log(podcast);
 
 		podcastDB.update({ _id: podcast._id }, podcast);
+
 		io.to(podcast._id).emit('podcast-pause');
 	});
 
+	socket.on('podcast-request-all', () => {
+		podcastDB.find({}, (err, docs) => io.to(socket.id).emit('podcasts-found', docs));
+	});
+
+	socket.on('podcast-request-single', podcastId => {
+		podcastDB.findOne({ _id: podcastId }, (err, doc) => {
+			io.to(socket.id).emit('podcast-found', doc);
+		});
+	});
+
+	socket.on('podcast-create', ({ description, url }) => {
+		const podcast = {
+			currentTime: 0,
+			description: description,
+			paused: false,
+			src: url,
+			startTime: (new Date).getTime()
+		};
+
+		podcastDB.insert(podcast, (err, newPodcast) => {
+			podcastDB.find({}, (err, docs) => io.emit('podcasts-found', docs));
+		});
+	})
+
+	// DB: Remove podcast && Remove all messages related to the podcast
+	// Socket: Send all remaining podcast list to all clients
 	socket.on('podcast-remove', podcastId => {
 		console.log('');
 		console.log(`Removing podcast with ID: ${podcastId}:`);
 
 		podcastDB.remove({ _id: podcastId }, (err, numRemoved) => {
 			podcastDB.find({}, (err, docs) => {
-				io.emit('podcasts', docs);
+				io.emit('podcasts-found', docs);
 			});
+		});
+
+		messagesDB.remove({ podcastId }, { multi: true }, (err, numRemoved) => {
+			console.log('err: ', err);
+			console.log('numRemoved: ', numRemoved);
 		});
 	});
 

@@ -25,7 +25,15 @@ const app = new Vue({
 	},
 
 	created: function() {
-		this._fetchPodcast(podcastId);
+		this.socket.on('podcast-found', podcast => {
+			this.podcast = podcast;
+
+			this._initData();
+			this._bindAudioEvents();
+			this._bindSocketEvents();
+		});
+
+		this.socket.emit('podcast-request-single', podcastId);
 	},
 
 	watch: {
@@ -67,17 +75,6 @@ const app = new Vue({
 		_bindSocketEvents: function() {
 			this.socket.on('podcast-play', () => this.audio.play());
 			this.socket.on('podcast-pause', () => this.audio.pause());
-		},
-		_fetchPodcast: function(podcastId) {
-			fetch(`/podcast/find/${podcastId}`)
-				.then(response => response.json())
-				.then(podcast => {
-					this.podcast = podcast;
-
-					this._initData();
-					this._bindAudioEvents();
-					this._bindSocketEvents();
-				});
 		},
 		_initData: function() {
 			this.currentTime = this.podcast.paused

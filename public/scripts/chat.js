@@ -24,7 +24,7 @@ const chat = new Vue({
 				.sort((m1, m2) => m1.date > m2.date);
 		})
 
-		this.socket.emit('chat-connect');
+		this.socket.emit('chat-connect', this.podcastId);
 	},
 	methods: {
 		handleInputKeyup: function() {

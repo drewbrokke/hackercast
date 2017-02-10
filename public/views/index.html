@@ -35,12 +35,17 @@
 
 	<script>
 		(() => {
+			const socketAddr = `${window.location.protocol}//${window.location.hostname}:3001`;
+
+			const socket = io.connect(socketAddr);
+
 			new Vue({
 				el: '#form',
 				data: {
 					currentUrl: null,
 					description: null,
-					isValidUrl: false
+					isValidUrl: false,
+					socket
 				},
 				computed: {
 					urlStatusMessage: function() {
@@ -49,50 +54,40 @@
 				},
 				methods: {
 					submit: function(event) {
-						fetch(this.currentUrl, {mode: 'cors'})
-							.then(res => {
-								this.isValidUrl = (res.status == 200);
+						let { url: { value: url }, description: {value: description }} = event.target;
 
-								if (this.isValidUrl && this.description) {
-									event.target.submit();
-								}
-							})
-							.catch(err => {
-								this.isValidUrl = (err.toString() === 'TypeError: Failed to fetch');
+						this.socket.emit('podcast-create', { url, description });
 
-								if (this.isValidUrl && this.description) {
-									event.target.submit();
-								}
-							});
+						this.currentUrl = '';
+						this.description = '';
 					}
 				}
 			});
 
-			fetch('/podcasts')
-				.then(response => response.json())
-				.then(podcasts => {
-					const socketAddr = `${window.location.protocol}//${window.location.hostname}:3001`;
+			new Vue({
+				el: '#podcasts',
+				data: {
+					podcasts: null,
+					socket
+				},
+				created: function() {
+					this.socket.emit('podcast-request-all');
 
-					new Vue({
-						el: '#podcasts',
-						data: {
-							podcasts: podcasts,
-							socket: io.connect(socketAddr)
-						},
-						created: function() {
-							this.socket.on('podcasts', (podcasts) => this.podcasts = podcasts);
-						},
-						methods: {
-							deletePodcast: function(event) {
-								if (confirm(`Are you sure you want to delete the podcast ${this.description}?`)) {
-									let podcastId = event.target.dataset.podcastId;
-
-									this.socket.emit('removePodcast', podcastId);
-								}
-							}
-						}
+					this.socket.on('podcasts-found', (podcasts) => {
+						console.log('podcasts')
+						this.podcasts = podcasts
 					});
-				});
+				},
+				methods: {
+					deletePodcast: function(event) {
+						if (confirm(`Are you sure you want to delete the podcast ${this.description}?`)) {
+							let podcastId = event.target.dataset.podcastId;
+
+							this.socket.emit('podcast-remove', podcastId);
+						}
+					}
+				}
+			});
 
 		})();
 	</script>
