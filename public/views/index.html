@@ -24,8 +24,12 @@
 	</form>
 
 	<div id="podcasts">
-		<div class="podcast-link" v-for="podcast in podcasts">
-			<a :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }} ({{podcast.src}})</a> <button :data-podcast-id="podcast._id" v-on:click="deletePodcast">Remove</button>
+		<div class="podcast-wrapper" v-for="podcast in podcasts">
+			<h3 class="podcast-title">
+				<a class="podcast-link" :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }}</a>
+				<button :data-podcast-id="podcast._id" v-on:click="deletePodcast">Remove</button>
+			</h3>
+			<div class="podcast-address">{{podcast.src}}</div>
 		</div>
 	</div>
 
@@ -80,9 +84,11 @@
 						},
 						methods: {
 							deletePodcast: function(event) {
-								let podcastId = event.target.dataset.podcastId;
+								if (confirm(`Are you sure you want to delete the podcast ${this.description}?`)) {
+									let podcastId = event.target.dataset.podcastId;
 
-								this.socket.emit('removePodcast', podcastId);
+									this.socket.emit('removePodcast', podcastId);
+								}
 							}
 						}
 					});
