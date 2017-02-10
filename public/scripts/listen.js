@@ -7,7 +7,8 @@ const app = new Vue({
 		duration: null,
 		paused: null,
 		podcast: null,
-		socket: io.connect(socketAddr)
+		socket: io.connect(socketAddr),
+		volume: 1
 	},
 
 	el: '#podcast',
@@ -16,6 +17,12 @@ const app = new Vue({
 		const podcastId = window.location.pathname.substr(8);
 
 		this._fetchPodcast(podcastId);
+	},
+
+	watch: {
+		volume: function() {
+			this.audio.volume = this.volume;
+		}
 	},
 
 	methods: {
