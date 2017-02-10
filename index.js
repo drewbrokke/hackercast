@@ -33,8 +33,35 @@ server.listen(3001);
 
 // Socket Interaction
 
+let listeners = [];
+
 io.on('connection', socket => {
-	socket.on('join', podcastId => socket.join(podcastId));
+	socket.on('join', ({podcastId, nickname}) => {
+		socket.join(podcastId);
+
+		let socketId = socket.id;
+
+		listeners = listeners.concat([{podcastId, nickname, socketId}]);
+
+		console.log('listener joined: ', listeners);
+
+		io.to(podcastId).emit('listeners-updated', listeners.filter(listener => listener.podcastId === podcastId));
+	});
+
+	socket.on('disconnect', () => {
+		try {
+			const {podcastId} = listeners.find(listener => listener.socketId === socket.id);
+
+			listeners = listeners.filter(listener => listener.socketId !== socket.id);
+
+			console.log('listener left: ', listeners);
+
+			io.to(podcastId).emit('listeners-updated', listeners.filter(listener => listener.podcastId === podcastId));
+		}
+		catch(err) {
+
+		}
+	});
 
 	/*
 
@@ -77,7 +104,7 @@ io.on('connection', socket => {
 		newMessage({
 			author: `ROBOT-${podcastId}`,
 			content,
-			date: new Date(),
+			date: (new Date).getTime(),
 			podcastId
 		});
 	}
@@ -163,8 +190,6 @@ io.on('connection', socket => {
 			console.log('numRemoved: ', numRemoved);
 		});
 	});
-
-	socket.on('disconnect', data => console.log(data));
 });
 
 app.listen(3000, () => console.log('Hackercast listening on port 3000!'));

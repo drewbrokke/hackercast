@@ -13,7 +13,11 @@ const chat = new Vue({
 		})
 
 		this.socket.on('messages', messages => {
-			this.messages = messages.sort((m1, m2) => new Date(m1.date).getTime() > new Date(m2.date).getTime());
+			this.messages = messages.sort((m1, m2) => {
+				console.log('m1.date: ', m1.date);
+				console.log('m2.date: ', m2.date);
+				return Number(m1.date) > Number(m2.date);
+			});
 		})
 
 		this.socket.emit('chat-connect', this.podcastId);
@@ -33,7 +37,7 @@ const chat = new Vue({
 			const message = {
 				author: this.nickname,
 				content: this.currentMessage,
-				date: new Date(),
+				date: (new Date).getTime(),
 				podcastId: this.podcastId
 			}
 

@@ -1,3 +1,22 @@
+#listeners {
+	bottom: 0;
+	position: absolute;
+	right: 405px;
+	width: 200px;
+}
+
+.listeners-list {
+	list-style: none;
+}
+
+.listener {
+	background-color: #D3D3D3;
+	border-radius: 5px;
+	margin-bottom: 5px;
+	padding: 10px;
+	text-align: center;
+}
+
 #chat {
 	bottom: 0;
 	position: absolute;

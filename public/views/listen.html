@@ -29,6 +29,15 @@
 		</div>
 	</div>
 
+	<div id="listeners">
+		<h2>Who's in the room:</h2>
+		<ul class="listeners-list">
+			<li class="listener" v-for="{nickname} in listeners">
+				{{nickname}}
+			</li>
+		</ul>
+	</div>
+
 	<div id="chat">
 		<div id="messages">
 			<div class="message" v-bind:data-message-id="message._id" v-bind:class="{ mine: (message.author === nickname) }" v-for="message in messages">
@@ -73,7 +82,22 @@
 		const socketAddr = `${window.location.protocol}//${window.location.hostname}:3001`;
 		const socket = io.connect(socketAddr);
 
-		socket.emit('join', podcastId);
+		let listenersList = new Vue({
+			el: '#listeners',
+
+			data: {
+				listeners: [],
+				socket
+			},
+
+			mounted: function() {
+				this.socket.on('listeners-updated', listeners => this.listeners = listeners)
+			}
+		});
+
+		socket.emit('join', {podcastId, nickname});
+
+
 	</script>
 	<script src="/scripts/podcast.js"></script>
 	<script src="/scripts/chat.js"></script>
