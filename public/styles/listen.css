@@ -16,3 +16,7 @@
 #chat .message.mine {
 	text-align: right;
 }
+
+#chat .message-data {
+	color: gray;
+}

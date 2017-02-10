@@ -68,8 +68,8 @@ io.on('connection', socket => {
 	})
 
 	function newMessage(message) {
-		messagesDB.insert(message, (err, newMessage) => {
-			io.to(message.podcastId).emit('message', newMessage);
+		messagesDB.insert(message, (err, createdMessage) => {
+			io.to(message.podcastId).emit('message', createdMessage);
 		});
 	};
 
@@ -84,34 +84,42 @@ io.on('connection', socket => {
 
 	// DB: Create new message
 	// Socket: Send new message to all in room
-	socket.on('message', newMessage);
+	socket.on('message', message => {
+		messagesDB.insert(message, (err, createdMessage) => {
+			io.to(message.podcastId).emit('message', createdMessage);
+		});
+	});
 
 	// DB: Update podcast as playing
 	// Socket: Send play event to all in room
 	socket.on('podcast-play', ({podcast, nickname}) => {
+		const podcastId = podcast._id;
+
 		console.log('');
-		console.log(`Playing podcast ${podcast._id}:`);
+		console.log(`Playing podcast ${podcastId}:`);
 		console.log(podcast);
 
-		podcastDB.update({ _id: podcast._id }, podcast);
+		podcastDB.update({ _id: podcastId }, podcast);
 
-		io.to(podcast._id).emit('podcast-play');
+		io.to(podcastId).emit('podcast-play');
 
-		newAdminMessage(`Resumed by ${nickname}`, podcast._id);
+		newAdminMessage(`Resumed by ${nickname}`, podcastId);
 	});
 
 	// DB: Update podcast as paused
 	// Socket: Send pause event to all in room
 	socket.on('podcast-pause', ({podcast, nickname}) => {
+		const podcastId = podcast._id;
+
 		console.log('');
-		console.log(`Pausing podcast ${podcast._id}:`);
+		console.log(`Pausing podcast ${podcastId}:`);
 		console.log(podcast);
 
-		podcastDB.update({ _id: podcast._id }, podcast);
+		podcastDB.update({ _id: podcastId }, podcast);
 
-		io.to(podcast._id).emit('podcast-pause');
+		io.to(podcastId).emit('podcast-pause');
 
-		newAdminMessage(`Paused by ${nickname}`, podcast._id);
+		newAdminMessage(`Paused by ${nickname}`, podcastId);
 	});
 
 	socket.on('podcast-request-all', () => {
