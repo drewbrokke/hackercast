@@ -163,7 +163,7 @@ io.on('connection', socket => {
 		const podcast = {
 			currentTime: 0,
 			description: description,
-			paused: false,
+			paused: true,
 			src: url,
 			startTime: (new Date).getTime()
 		};
