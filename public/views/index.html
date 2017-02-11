@@ -8,28 +8,31 @@
 	<script src="https://unpkg.com/vue/dist/vue.js"></script>
 </head>
 <body>
-	<form action="/podcast/new" v-on:submit.prevent="submit" id="form" method="post">
-		<div>
-			<label for="name">Url to audio file</label>
-			<input v-model="currentUrl" name="url" type="text">
-		</div>
-		<span v-text="currentUrl"></span>
-		<span v-text="urlStatusMessage"></span>
-		<div>
-			<label for="description">Name or description</label>
-			<input v-model="description" name="description" type="text">
-		</div>
+	<div id="container">
+		<h1>HackerCast</h1>
+		<form action="/podcast/new" v-on:submit.prevent="submit" id="form" method="post">
+			<div>
+				<label for="description">Name or description:</label>
+				<input v-model="description" name="description" type="text">
+				<span v-bind:class="{ 'status-dot': true, 'status-green': this.description }"></span>
+			</div>
+			<div>
+				<label for="name">Url to audio file:</label>
+				<input v-model="currentUrl" name="url" type="text">
+				<span v-bind:class="{ 'status-dot': true, 'status-green': this.isValidURL }"></span>
+			</div>
 
-		<button>Submit</button>
-	</form>
+			<button>Submit</button>
+		</form>
 
-	<div id="podcasts">
-		<div class="podcast-wrapper" v-for="podcast in podcasts">
-			<h3 class="podcast-title">
-				<a class="podcast-link" :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }}</a>
-				<button :data-podcast-id="podcast._id" v-on:click="deletePodcast">Remove</button>
-			</h3>
-			<div class="podcast-address">{{podcast.src}}</div>
+		<div id="podcasts">
+			<div class="podcast-wrapper" v-for="podcast in podcasts">
+				<h3 class="podcast-title">
+					<a class="podcast-link" :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }}</a>
+					<button :data-podcast-id="podcast._id" v-on:click="deletePodcast">Remove</button>
+				</h3>
+				<div class="podcast-address">{{podcast.src}}</div>
+			</div>
 		</div>
 	</div>
 
@@ -44,22 +47,35 @@
 				data: {
 					currentUrl: null,
 					description: null,
-					isValidUrl: false,
 					socket
 				},
 				computed: {
-					urlStatusMessage: function() {
-						return this.isValidUrl ? 'URL is valid!' : 'Please enter a valid URL.'
+					isValidURL: function() {
+						return this._isValidURL(this.currentUrl);
 					}
 				},
 				methods: {
 					submit: function(event) {
 						let { url: { value: url }, description: {value: description }} = event.target;
 
+						if (!this.isValidURL || !this.description) {
+							return;
+						}
+
 						this.socket.emit('podcast-create', { url, description });
 
 						this.currentUrl = '';
 						this.description = '';
+					},
+					_isValidURL: function(urlString) {
+						try {
+							new URL(urlString);
+
+							return true;
+						}
+						catch(err) {
+							return false;
+						}
 					}
 				}
 			});
