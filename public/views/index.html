@@ -12,14 +12,22 @@
 		<h1>HackerCast</h1>
 		<form action="/podcast/new" v-on:submit.prevent="submit" id="form" method="post">
 			<div>
-				<label for="description">Name or description:</label>
-				<input v-model="description" name="description" type="text">
-				<span v-bind:class="{ 'status-dot': true, 'status-green': this.description }"></span>
+				<div>
+					<label for="description">Name or description:</label>
+					<span v-bind:class="{ 'status-dot': true, 'status-green': this.description }"></span>
+				</div>
+				<div>
+					<input v-model="description" name="description" type="text">
+				</div>
 			</div>
 			<div>
-				<label for="name">Url to audio file:</label>
-				<input v-model="currentUrl" name="url" type="text">
-				<span v-bind:class="{ 'status-dot': true, 'status-green': this.isValidURL }"></span>
+				<div>
+					<label for="name">Url to audio file:</label>
+					<span v-bind:class="{ 'status-dot': true, 'status-green': this.isValidURL }"></span>
+				</div>
+				<div>
+					<input v-model="currentUrl" name="url" type="text">
+				</div>
 			</div>
 
 			<button>Submit</button>

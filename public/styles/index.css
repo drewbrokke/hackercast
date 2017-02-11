@@ -7,34 +7,32 @@
 	text-align: center;
 }
 
-form div {
+form > div {
 	margin-bottom: 20px;
 }
 form label {
 	display: inline-block;
-	margin-right: 10px;
-	text-align: right;
 	width: 150px;
 }
 
 form input {
-	display: inline-block;
-	width: 400px;
+	margin-top: 5px;
+	width: 100%;
 }
 
 form button {
-	border: 1px solid gray;
-	float: right;
-	padding: 10px;
-	margin-right: 30px;
 	border-radius: 5px;
+	border: 1px solid gray;
 	font-size: 1em;
+	margin-right: 30px;
+	padding: 12px;
 }
 
 form .status-dot {
 	background-color: orange;
 	border-radius: 100%;
 	display: inline-block;
+	float: right;
 	height: 10px;
 	width: 10px;
 }
@@ -43,8 +41,21 @@ form .status-dot.status-green {
 	background-color: green;
 }
 
+#podcasts {
+	margin-top: 10px;
+}
+
+.podcast-wrapper button {
+	border-radius: 5px;
+	border: 1px solid gray;
+	float: right;
+	font-size: 1em;
+	padding: 12px;
+}
+
 .podcast-wrapper {
-	margin-bottom: 10px;
+	border-top: 1px solid gray;
+	margin-bottom: 25px;
 }
 
 .podcast-title {
