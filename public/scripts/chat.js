@@ -8,17 +8,8 @@ const chat = new Vue({
 		messages: []
 	},
 	created: function() {
-		this.socket.on('message', message => {
-			this.messages = this.messages.concat([message]);
-		})
-
-		this.socket.on('messages', messages => {
-			this.messages = messages.sort((m1, m2) => {
-				console.log('m1.date: ', m1.date);
-				console.log('m2.date: ', m2.date);
-				return Number(m1.date) > Number(m2.date);
-			});
-		})
+		this.socket.on('message', message => this.messages = this.messages.concat([message]));
+		this.socket.on('messages', messages => this.messages = messages.sort((m1, m2) => Number(m1.date) > Number(m2.date)));
 
 		this.socket.emit('chat-connect', this.podcastId);
 	},
