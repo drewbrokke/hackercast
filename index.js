@@ -43,18 +43,18 @@ io.on('connection', socket => {
 
 		listeners = listeners.concat([{podcastId, nickname, socketId}]);
 
-		console.log('listener joined: ', listeners);
+		console.log(`listener "${nickname}" joined room ${podcastId}`);
 
 		io.to(podcastId).emit('listeners-updated', listeners.filter(listener => listener.podcastId === podcastId));
 	});
 
 	socket.on('disconnect', () => {
 		try {
-			const {podcastId} = listeners.find(listener => listener.socketId === socket.id);
+			const {nickname, podcastId} = listeners.find(listener => listener.socketId === socket.id);
 
 			listeners = listeners.filter(listener => listener.socketId !== socket.id);
 
-			console.log('listener left: ', listeners);
+			console.log(`listener "${nickname}" left room ${podcastId}`);
 
 			io.to(podcastId).emit('listeners-updated', listeners.filter(listener => listener.podcastId === podcastId));
 		}
