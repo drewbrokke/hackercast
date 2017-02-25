@@ -18,11 +18,14 @@ app.get('/listen/:id', (req, res) => res.sendFile(path.join(__dirname, 'public',
 // Set up PERSISTENCE
 const Datastore = require('nedb');
 
-const podcastDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'podcasts')});
-const messagesDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'messages')});
+// const podcastDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'podcasts')});
+// const messagesDB = new Datastore({filename: userhome('.hackercast', 'persistence', 'messages')});
 
-podcastDB.loadDatabase();
-messagesDB.loadDatabase();
+const podcastDB = new Datastore();
+const messagesDB = new Datastore();
+
+// podcastDB.loadDatabase();
+// messagesDB.loadDatabase();
 
 // Set up SOCKET server
 
