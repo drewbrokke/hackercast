@@ -139,6 +139,21 @@ io.on('connection', socket => {
 		newAdminMessage(`Paused by ${nickname}`, podcastId);
 	});
 
+	// DB: Updates podcasts currentTime and startTime
+	// Socket: Emit scrub event and send new podcast data to all in room
+	socket.on('podcast-scrub', ({podcast, nickname, newTime}) => {
+		const podcastId = podcast._id;
+
+		podcast.currentTime = newTime;
+		podcast.startTime = Math.floor((new Date).getTime() - (newTime * 1000));
+
+		podcastDB.update({ _id: podcastId }, podcast);
+
+		io.to(podcastId).emit('podcast-scrub', podcast);
+
+		newAdminMessage(`Scrubbed to ${Math.round(newTime)} by ${nickname}`, podcastId);
+	});
+
 	socket.on('podcast-request-all', () => {
 		podcastDB.find({}, (err, docs) => io.to(socket.id).emit('podcasts-found', docs));
 	});
