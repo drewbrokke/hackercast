@@ -46,7 +46,7 @@
 
 	<script>
 		(() => {
-			const socketAddr = `${window.location.protocol}//${window.location.hostname.replace(/^hosting/, 'socket')}`;
+			const socketAddr = `${window.location.protocol}//socket.${window.location.hostname.replace(/^hosting\./, '')}`;
 
 			const socket = io.connect(socketAddr);
 
