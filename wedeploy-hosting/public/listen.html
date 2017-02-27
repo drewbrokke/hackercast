@@ -77,9 +77,10 @@
 			localStorage.setItem('nickname', nickname);
 		}
 
-		const podcastId = window.location.pathname.substr(8);
+		const podcastId = window.location.hash.substr(1);
 
 		const socketAddr = `${window.location.protocol}//${window.location.hostname}:3001`;
+
 		const socket = io.connect(socketAddr);
 
 		let listenersList = new Vue({

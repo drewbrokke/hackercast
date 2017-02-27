@@ -36,7 +36,7 @@
 		<div id="podcasts">
 			<div class="podcast-wrapper" v-for="podcast in podcasts">
 				<h3 class="podcast-title">
-					<a class="podcast-link" :href="`/listen/${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }}</a>
+					<a class="podcast-link" :href="`/listen.html#${podcast._id}`">{{ podcast.description ? podcast.description : "No description given..." }}</a>
 					<button :data-podcast-id="podcast._id" v-on:click="deletePodcast">Remove</button>
 				</h3>
 				<div class="podcast-address">{{podcast.src}}</div>

@@ -1,20 +1,3 @@
-const path = require('path');
-const userhome = require('userhome');
-
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
-app.use(express.static('public'));
-
-// View Routes
-
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'views', 'index.html')));
-app.get('/listen/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'views', 'listen.html')));
-
 // Set up PERSISTENCE
 const Datastore = require('nedb');
 
@@ -29,7 +12,7 @@ const messagesDB = new Datastore();
 
 // Set up SOCKET server
 
-const server = require('http').Server(app);
+const server = require('http').createServer();
 const io = require('socket.io')(server);
 
 server.listen(3001);
@@ -194,5 +177,3 @@ io.on('connection', socket => {
 		});
 	});
 });
-
-app.listen(3000, () => console.log('Hackercast listening on port 3000!'));
