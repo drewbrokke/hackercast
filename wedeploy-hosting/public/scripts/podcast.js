@@ -43,6 +43,9 @@ const app = new Vue({
 	},
 
 	methods: {
+		backwards: function() {
+			this._scrub(-30);
+		},
 		emitPause: function() {
 			this.podcast.currentTime = this.audio.currentTime;
 			this.podcast.paused = true;
@@ -54,6 +57,9 @@ const app = new Vue({
 			this.podcast.paused = false;
 
 			this.socket.emit('podcast-play', {podcast: this.podcast, nickname});
+		},
+		forward: function() {
+			this._scrub(30);
 		},
 		toggle: function() {
 			this.paused ? this.emitPlay() : this.emitPause();
@@ -73,8 +79,9 @@ const app = new Vue({
 			this.audio.onplay = () => syncViewToAudio('paused');
 		},
 		_bindSocketEvents: function() {
-			this.socket.on('podcast-play', () => this.audio.play());
 			this.socket.on('podcast-pause', () => this.audio.pause());
+			this.socket.on('podcast-play', () => this.audio.play());
+			this.socket.on('podcast-scrub', this._updateFromScrub);
 		},
 		_initData: function() {
 			this.currentTime = this.podcast.paused
@@ -82,6 +89,16 @@ const app = new Vue({
 				: ((new Date).getTime() - this.podcast.startTime) / 1000;
 
 			this.paused = this.podcast.paused;
+		},
+		_scrub: function(seconds) {
+			const newTime = this.audio.currentTime + seconds;
+
+			this.socket.emit('podcast-scrub', {podcast: this.podcast, newTime, nickname});
+		},
+		_updateFromScrub: function(podcast) {
+			this.audio.currentTime = podcast.currentTime;
+			this.currentTime = podcast.currentTime;
+			this.podcast = podcast;
 		}
 	}
 });

@@ -14,10 +14,16 @@
 		<div v-if="audio">
 			<div class="md-display-2" id="description" v-if="podcast">{{ podcast.description }}</div>
 			<div>
-				<md-button class="md-raised" v-on:click="toggle">{{ paused ? 'Play' : 'Pause' }}</md-button>
 				<span class="md-display-1">{{ Math.floor(currentTime) }} / {{ Math.floor(duration) }}</span>
 				<md-progress :md-progress="progress"></md-progress>
 			</div>
+
+			<div>
+				<md-button class="md-raised" v-on:click="backwards">Backwards 30</md-button>
+				<md-button class="md-raised" v-on:click="toggle">{{ paused ? 'Play' : 'Pause' }}</md-button>
+				<md-button class="md-raised" v-on:click="forward">Forward 30</md-button>
+			</div>
+
 			<div class="volume-control">
 				<label for="volume">Volume</label>
 				<input v-model="volume" type="range" name="volume" min="0" max="1" step=".01" value="1">
