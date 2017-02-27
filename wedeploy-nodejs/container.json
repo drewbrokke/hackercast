@@ -2,11 +2,7 @@
     "id": "socket",
     "type": "wedeploy/nodejs:latest",
     "hooks": {
-        "before_build": "",
         "build": "npm install",
-        "after_build": "",
-        "before_start": "",
-        "start": "node index.js",
-        "after_start": ""
+        "start": "node index.js"
     }
 }

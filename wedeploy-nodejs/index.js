@@ -15,7 +15,11 @@ const messagesDB = new Datastore();
 const server = require('http').createServer();
 const io = require('socket.io')(server);
 
-server.listen(3001);
+const PORT = 80;
+
+server.listen(PORT);
+
+console.log(`Listening on port ${PORT}!`);
 
 // Socket Interaction
 
