@@ -19,9 +19,15 @@
 			</div>
 
 			<div>
-				<md-button class="md-raised" v-on:click="backwards">Backwards 30</md-button>
+				<md-button class="md-raised" v-on:click="backwards">Backwards {{scrubInterval}}</md-button>
 				<md-button class="md-raised" v-on:click="toggle">{{ paused ? 'Play' : 'Pause' }}</md-button>
-				<md-button class="md-raised" v-on:click="forward">Forward 30</md-button>
+				<md-button class="md-raised" v-on:click="forward">Forward {{scrubInterval}}</md-button>
+			</div>
+			<div>
+				<md-input-container class="scrub-interval-input">
+					<label>Scrub interval</label>
+					<md-input v-model="scrubInterval"></md-input>
+				</md-input-container>
 			</div>
 
 			<div class="volume-control">

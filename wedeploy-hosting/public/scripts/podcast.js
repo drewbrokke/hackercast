@@ -8,6 +8,7 @@ const app = new Vue({
 		paused: null,
 		podcast: null,
 		progress: 0,
+		scrubInterval: 30,
 		socket,
 		volume: 1
 	},
@@ -44,7 +45,7 @@ const app = new Vue({
 
 	methods: {
 		backwards: function() {
-			this._scrub(-30);
+			this._scrub(-(this.scrubInterval));
 		},
 		emitPause: function() {
 			this.podcast.currentTime = this.audio.currentTime;
@@ -59,7 +60,7 @@ const app = new Vue({
 			this.socket.emit('podcast-play', {podcast: this.podcast, nickname});
 		},
 		forward: function() {
-			this._scrub(30);
+			this._scrub(+(this.scrubInterval));
 		},
 		toggle: function() {
 			this.paused ? this.emitPlay() : this.emitPause();
@@ -91,6 +92,7 @@ const app = new Vue({
 			this.paused = this.podcast.paused;
 		},
 		_scrub: function(seconds) {
+			console.log('seconds: ', seconds);
 			const newTime = this.audio.currentTime + seconds;
 
 			this.socket.emit('podcast-scrub', {podcast: this.podcast, newTime, nickname});
