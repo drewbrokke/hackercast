@@ -53,3 +53,24 @@
 	height: 20px;
 	width: 70%;
 }
+
+@media only screen and (max-width: 768px) {
+	#chat, #messages {
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	#chat {
+		position: static;
+		width: 100%;
+	}
+
+	#listeners {
+		position: static;
+	}
+
+	.listener {
+		display: inline-block;
+		margin-right: 4px;
+	}
+}
