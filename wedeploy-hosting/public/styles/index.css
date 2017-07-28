@@ -61,3 +61,8 @@ form .status-dot.status-green {
 .podcast-title {
 	margin-bottom: 3px;
 }
+
+.podcast-address {
+	width: 80%;
+	word-wrap: break-word;
+}
