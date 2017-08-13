@@ -3,5 +3,5 @@
         "WEDEPLOY_WEB_PATH": "/public/"
     },
     "id": "hosting",
-    "type": "wedeploy/hosting:latest"
+    "image": "wedeploy/hosting:0.0.1"
 }

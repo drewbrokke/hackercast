@@ -1,6 +1,6 @@
 {
     "id": "socket",
-    "type": "wedeploy/nodejs:latest",
+    "image": "wedeploy/nodejs:0.0.1",
     "hooks": {
         "build": "npm install",
         "start": "node index.js"
