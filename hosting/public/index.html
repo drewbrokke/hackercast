@@ -46,7 +46,7 @@
 
 	<script>
 		(() => {
-			const socketAddr = `${window.location.protocol}//socket-hackercast.${window.location.hostname.split('.').slice(1).join('.')}`;
+			const socketAddr = `${window.location.protocol}//socket-hackercast.${window.location.hostname.replace(/^hosting-hackercast\./, '')}`;
 
 			const socket = io.connect(socketAddr);
 
