@@ -1,7 +1,9 @@
 {
+    "customDomains": ["www.hackercast.club", "hackercast.club"],
     "env": {
         "WEDEPLOY_WEB_PATH": "/public/"
     },
     "id": "hosting",
     "image": "wedeploy/hosting:0.0.1"
+
 }
