@@ -1,5 +1,5 @@
 {
-    "customDomains": ["www.hackercast.club", "hackercast.club"],
+    "customDomains": ["hackercast.club"],
     "env": {
         "WEDEPLOY_WEB_PATH": "/public/"
     },
